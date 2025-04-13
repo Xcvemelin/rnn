@@ -5,8 +5,10 @@ sys.path.append(str(Path(__file__).parent))
 
 from configs.logging import logger
 from data.dataset_generator import DatasetGenerator
-from models.rnn_model import create_model
 from utils.text_generator import TextGenerator
+from models.model_factory import ModelFactory
+from configs.model_config import ModelConfig
+from configs.paths import TRAINED_MODELS_DIR
 
 def main():
     ''' 
@@ -18,6 +20,14 @@ def main():
         visualize_logits_probs
     '''
     try:
+        config = ModelConfig(
+            model_name="rnn",
+            embedding_dim=128, 
+            rnn_units=256, 
+            batch_size=64, 
+            stateful=True,
+            epochs=10
+        )
         logger.info("Starting application...")
         
         dataset_gen = DatasetGenerator()
@@ -25,15 +35,10 @@ def main():
         text_as_int, char2idx, idx2char = dataset_gen.tokenization(text)
         dataset = dataset_gen.prepare_dataset(text_as_int)
 
-
-        model_type = "rnn"
-
-        from configs.paths import TRAINED_MODELS_DIR
-        model_path = TRAINED_MODELS_DIR / f"{model_type}_model.keras"
-        
-        logger.info(f"Creating {model_type} model")
-        model_gen = create_model(model_type, len(char2idx), dataset, embedding_dim=128, rnn_units=256, batch_size=64, stateful=True)
-        model = model_gen.load_or_train_model(path=model_path, epochs=10)
+        model_path = TRAINED_MODELS_DIR / f"{config.model_name}_model.keras"
+        logger.info(f"Creating {config.model_name} model")
+        model_gen = ModelFactory.create_model(len(char2idx), dataset, config)
+        model = model_gen.load_or_train_model(path=model_path)
         
         text_generation = TextGenerator(char2idx, idx2char)
 

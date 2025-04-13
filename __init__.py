@@ -20,8 +20,8 @@ __description__ = "Package for text generation using recurrent neural networks"
 try:
     from .data.dataset_generator import DatasetGenerator
     from .utils.text_generator import TextGenerator
-    from .models.rnn_model import create_model
-    from .configs.model_params import MODEL_PARAMS
+    from .models.model_factory import ModelFactory
+    from .configs.model_config import ModelConfig
     
     logger.debug("Main components imported successfully")
 except ImportError as e:
@@ -31,9 +31,9 @@ except ImportError as e:
 __all__ = [
     'DatasetGenerator',
     'TextGenerator',
-    'create_model',
+    'ModelFactory',
     'logger',
-    'MODEL_PARAMS'
+    'ModelConfig'
 ]
 
 try:
